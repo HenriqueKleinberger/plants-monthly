@@ -8,8 +8,9 @@ import {
   ScrollView,
   Alert,
   Image,
+  TouchableOpacity,
 } from 'react-native';
-import { ICategory, IPlant } from './types';
+import { ICategory, IOrder, IOrderResponse, IPlant } from './types';
 import Categories from './Components/Categories';
 
 const monthNames = [
@@ -28,63 +29,85 @@ const monthNames = [
 ];
 
 export default function App() {
-  const [orderDate, setOrderDate] = useState<Date>(new Date());
-  const [selectedPlants, setSelectedPlants] = useState<IPlant[]>([
-    {
-      id: 'cucumber_iznik',
-      name: 'Cucumber - Iznik',
-      imageId: 'iznik',
-    },
-    {
-      id: 'cilantro_santo',
-      name: 'Cilantro - Santo',
-      imageId: 'cilantro_santo',
-    },
-    { id: 'tomato_bigdena', name: 'Tomato - Bigdena', imageId: 'bigdena' },
-    {
-      id: 'pac_choi_mei_qing_choi',
-      name: 'Pac Choi - Mei Qing Choi',
-      imageId: 'pac_choi_mei_qing_choi',
-    },
-    {
-      id: 'lettuce_green_butter',
-      name: 'Lettuce - Green Butter',
-      imageId: 'lettuce_green_butter',
-    },
-  ]);
+  const [order, setOrder] = useState<IOrder>({
+    id: 0,
+    date: new Date(),
+    plants: [],
+  });
   const [categories, setCategories] = useState<ICategory[]>([]);
-
-  // useEffect(() => {
-  //   const getPlants = async () => {
-  //     const response = await fetch(
-  //       'https://dev-agwa-public-static-assets-web.s3-us-west-2.amazonaws.com/data/catalogs/plants.json',
-  //     );
-  //     // console.warn(await response.json());
-  //     const plants = (await response.json()).plants;
-  //     setSelectedPlants(plants);
-  //   };
-  //   getPlants();
-  // }, []);
+  useEffect(() => {
+    const getOrderOpened = async () => {
+      const response = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/order/user/1/opened`
+      );
+      console.log(response);
+      if (response.status === 200) {
+        const orderResponse: IOrderResponse = await response.json();
+        console.log(orderResponse);
+        setOrder({ ...orderResponse, date: new Date(orderResponse.date) });
+      }
+    };
+    getOrderOpened();
+  }, []);
 
   useEffect(() => {
     const getCategories = async () => {
-      const response = await fetch(
-        'https://dev-agwa-public-static-assets-web.s3-us-west-2.amazonaws.com/data/catalogs/agwafarm.json'
-      );
-      // console.warn(await response.json());
-      const categoriesResponse = (await response.json()).categories;
-      setCategories(categoriesResponse);
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BASE_URL}/category`
+        );
+        const categoriesResponse = await response.json();
+        setCategories(categoriesResponse);
+      } catch (error) {
+        console.warn(error);
+      }
     };
     getCategories();
   }, []);
 
   const selectPlant = (plant: IPlant) => {
-    if (selectedPlants.length === 5) {
+    if (order?.plants.length === 5) {
       Alert.alert("You can't select for than 5 plants for your next order");
       return;
     }
-    setSelectedPlants(selectedPlants.concat([plant]));
+    setOrder({ ...order, plants: order.plants.concat([plant]) });
   };
+
+  const saveOrder = async () => {
+    if (order.id) {
+      const response = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/order/user/1/order/${order.id}`,
+        {
+          method: 'PUT',
+          headers: new Headers({
+            'Content-Type': 'application/json',
+          }),
+          body: JSON.stringify(order),
+        }
+      );
+      const orderResponse = await response.json();
+      setOrder({ ...orderResponse, date: new Date(orderResponse.date) });
+    } else {
+      const response = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/order/user/1`,
+        {
+          method: 'POST',
+          headers: new Headers({
+            'Content-Type': 'application/json',
+          }),
+          body: JSON.stringify(order),
+        }
+      );
+      const orderResponse = await response.json();
+      setOrder({ ...orderResponse, date: new Date(orderResponse.date) });
+    }
+  };
+
+  const removeSelectedPlant = (plant: IPlant) =>
+    setOrder({
+      ...order,
+      plants: order.plants.filter((sp) => sp.id !== plant.id),
+    });
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -98,34 +121,49 @@ export default function App() {
           </Text>
           <Text
             style={styles.paragraph}
-          >{`Changes to your next order ca be made until the end of ${
-            monthNames[orderDate.getMonth()]
+          >{`Changes to your next order can be made until the end of ${
+            monthNames[order.date.getMonth()]
           }`}</Text>
           <Text
             style={styles.paragraph}
           >{`This order will be shipped on the beginning of ${
-            monthNames[orderDate.getMonth() + 1]
+            monthNames[order.date.getMonth() + 1]
           }`}</Text>
         </View>
         <View />
         <View style={styles.selectedPlants}>
-          {selectedPlants.map((s) => (
-            <View style={styles.selectedPlant}>
+          {order.plants.map((p) => (
+            <TouchableOpacity
+              onPress={() => removeSelectedPlant(p)}
+              accessibilityLabel={`Remove the ${p.name} from your next order`}
+              style={styles.selectedPlant}
+            >
               <Image
                 style={styles.tinyLogo}
                 source={{
-                  uri: `https://dev-agwa-public-static-assets-web.s3-us-west-2.amazonaws.com/images/vegetables/${s.imageId}@3x.jpg`,
+                  uri: `https://dev-agwa-public-static-assets-web.s3-us-west-2.amazonaws.com/images/vegetables/${p.imageId}@3x.jpg`,
                 }}
               />
               <View style={styles.selectedName}>
-                <Text style={styles.selectedNameText}>{s.name}</Text>
+                <Text style={styles.selectedNameText}>{p.name}</Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
         <View style={styles.categories}>
-          <Categories categories={categories} selectPlant={selectPlant} />
+          <Categories
+            categories={categories}
+            selectPlant={selectPlant}
+            selectedPlants={order.plants}
+          />
         </View>
+        <TouchableOpacity
+          onPress={saveOrder}
+          accessibilityLabel={'Save order'}
+          style={styles.saveOrder}
+        >
+          <Text>SAVE CHANGES</Text>
+        </TouchableOpacity>
         <StatusBar style="auto" />
       </ScrollView>
     </SafeAreaView>
@@ -173,4 +211,5 @@ const styles = StyleSheet.create({
   selectedName: {
     justifyContent: 'center',
   },
+  saveOrder: {},
 });

@@ -9,3 +9,15 @@ export interface ICategory {
   name: string;
   plants: IPlant[];
 }
+
+export interface IOrder {
+  date: Date;
+  id: number;
+  plants: IPlant[];
+}
+
+export interface IOrderResponse {
+  date: string;
+  id: number;
+  plants: IPlant[];
+}

@@ -6,9 +6,10 @@ import Plant from '../Plants';
 interface IProps {
   categories: ICategory[];
   selectPlant: (plant: IPlant) => void;
+  selectedPlants: IPlant[];
 }
 
-const Categories = ({ categories, selectPlant }: IProps) => {
+const Categories = ({ categories, selectPlant, selectedPlants }: IProps) => {
   const [activesCategories, setActivesCategories] = useState<ICategory[]>([]);
 
   const isCategoryActive = (category: ICategory) =>
@@ -41,9 +42,14 @@ const Categories = ({ categories, selectPlant }: IProps) => {
               <Text style={styles.categoryName}>{c.name}</Text>
             </TouchableOpacity>
             {isActive &&
-              c.plants.map((p) => (
-                <Plant key={p.id} plant={p} selectPlant={selectPlant} />
-              ))}
+              c.plants
+                .filter(
+                  (p) =>
+                    selectedPlants.find((sp) => sp.id === p.id) === undefined
+                )
+                .map((p) => (
+                  <Plant key={p.id} plant={p} selectPlant={selectPlant} />
+                ))}
           </View>
         );
       })}
