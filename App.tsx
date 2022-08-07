@@ -7,11 +7,11 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
-  Image,
   TouchableOpacity,
 } from 'react-native';
 import { ICategory, IOrder, IOrderResponse, IPlant } from './types';
 import Categories from './Components/Categories';
+import Plant from './Components/Plants';
 
 const monthNames = [
   'January',
@@ -35,6 +35,8 @@ export default function App() {
     plants: [],
   });
   const [categories, setCategories] = useState<ICategory[]>([]);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const getOrderOpened = async () => {
       const response = await fetch(
@@ -47,10 +49,6 @@ export default function App() {
         setOrder({ ...orderResponse, date: new Date(orderResponse.date) });
       }
     };
-    getOrderOpened();
-  }, []);
-
-  useEffect(() => {
     const getCategories = async () => {
       try {
         const response = await fetch(
@@ -62,7 +60,15 @@ export default function App() {
         console.warn(error);
       }
     };
-    getCategories();
+    const loadInitialData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([getCategories(), getOrderOpened()]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadInitialData();
   }, []);
 
   const selectPlant = (plant: IPlant) => {
@@ -74,6 +80,7 @@ export default function App() {
   };
 
   const saveOrder = async () => {
+    setLoading(true);
     if (order.id) {
       const response = await fetch(
         `${process.env.REACT_APP_BASE_URL}/order/user/1/order/${order.id}`,
@@ -101,6 +108,7 @@ export default function App() {
       const orderResponse = await response.json();
       setOrder({ ...orderResponse, date: new Date(orderResponse.date) });
     }
+    setLoading(false);
   };
 
   const removeSelectedPlant = (plant: IPlant) =>
@@ -108,7 +116,7 @@ export default function App() {
       ...order,
       plants: order.plants.filter((sp) => sp.id !== plant.id),
     });
-
+  if (loading) return <Text>loading....</Text>;
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
@@ -133,29 +141,16 @@ export default function App() {
         <View />
         <View style={styles.selectedPlants}>
           {order.plants.map((p) => (
-            <TouchableOpacity
-              onPress={() => removeSelectedPlant(p)}
+            <Plant
+              key={p.id}
+              plant={p}
+              onPress={removeSelectedPlant}
               accessibilityLabel={`Remove the ${p.name} from your next order`}
-              style={styles.selectedPlant}
-            >
-              <Image
-                style={styles.tinyLogo}
-                source={{
-                  uri: `https://dev-agwa-public-static-assets-web.s3-us-west-2.amazonaws.com/images/vegetables/${p.imageId}@3x.jpg`,
-                }}
-              />
-              <View style={styles.selectedName}>
-                <Text style={styles.selectedNameText}>{p.name}</Text>
-              </View>
-            </TouchableOpacity>
+            />
           ))}
         </View>
         <View style={styles.categories}>
-          <Categories
-            categories={categories}
-            selectPlant={selectPlant}
-            selectedPlants={order.plants}
-          />
+          <Categories categories={categories} selectPlant={selectPlant} />
         </View>
         <TouchableOpacity
           onPress={saveOrder}
@@ -191,7 +186,6 @@ const styles = StyleSheet.create({
   selectedPlants: {
     flexDirection: 'row',
   },
-  categories: {},
   tinyLogo: {
     width: 50,
     height: 50,
@@ -211,5 +205,14 @@ const styles = StyleSheet.create({
   selectedName: {
     justifyContent: 'center',
   },
-  saveOrder: {},
+  saveOrder: {
+    justifyContent: 'center',
+    backgroundColor: '#6ea23e',
+    padding: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#a9d275',
+    color: '#fff',
+  },
 });

@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
+import {
+  TouchableOpacity,
+  View,
+  StyleSheet,
+  Text,
+  ScrollView,
+} from 'react-native';
 import { ICategory, IPlant } from '../../types';
 import Plant from '../Plants';
 
 interface IProps {
   categories: ICategory[];
   selectPlant: (plant: IPlant) => void;
-  selectedPlants: IPlant[];
 }
 
-const Categories = ({ categories, selectPlant, selectedPlants }: IProps) => {
+const Categories = ({ categories, selectPlant }: IProps) => {
   const [activesCategories, setActivesCategories] = useState<ICategory[]>([]);
 
   const isCategoryActive = (category: ICategory) =>
@@ -41,23 +46,26 @@ const Categories = ({ categories, selectPlant, selectedPlants }: IProps) => {
             >
               <Text style={styles.categoryName}>{c.name}</Text>
             </TouchableOpacity>
-            {isActive &&
-              c.plants
-                .filter(
-                  (p) =>
-                    selectedPlants.find((sp) => sp.id === p.id) === undefined
-                )
-                .map((p) => (
-                  <Plant key={p.id} plant={p} selectPlant={selectPlant} />
+            {isActive && (
+              <ScrollView style={styles.scroll} horizontal>
+                {c.plants.map((p) => (
+                  <Plant
+                    key={p.id}
+                    plant={p}
+                    onPress={selectPlant}
+                    accessibilityLabel={`Select the ${p.name} for your next order`}
+                  />
                 ))}
+              </ScrollView>
+            )}
           </View>
         );
       })}
     </View>
   );
 };
-
 const styles = StyleSheet.create({
+  scroll: { flexDirection: 'row' },
   selectedPlants: {},
   category: {
     borderWidth: 1,
@@ -68,6 +76,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     fontSize: 18,
     textTransform: 'uppercase',
+    padding: 8,
   },
   container: {
     marginTop: 20,
