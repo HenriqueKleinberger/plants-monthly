@@ -49,6 +49,8 @@ export default function App() {
       setLoading(true);
       try {
         await Promise.all([getCategories(), getOrder()]);
+      } catch (e) {
+        console.warn(e);
       } finally {
         setLoading(false);
       }
