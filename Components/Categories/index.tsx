@@ -7,6 +7,8 @@ import {
   ScrollView,
 } from 'react-native';
 import { ICategory, IPlant } from '../../types';
+import AddIcon from '../Images/AddIcon';
+import Arrow from '../Images/Arrow';
 import Plant from '../Plants';
 
 interface IProps {
@@ -44,7 +46,10 @@ const Categories = ({ categories, selectPlant }: IProps) => {
               }
               style={styles.category}
             >
-              <Text style={styles.categoryName}>{c.name}</Text>
+              <View style={styles.collapse}>
+                <Text style={styles.categoryName}>{c.name}</Text>
+                <Arrow collapsed={isActive} />
+              </View>
             </TouchableOpacity>
             {isActive && (
               <ScrollView style={styles.scroll} horizontal>
@@ -54,7 +59,9 @@ const Categories = ({ categories, selectPlant }: IProps) => {
                     plant={p}
                     onPress={selectPlant}
                     accessibilityLabel={`Select the ${p.name} for your next order`}
-                  />
+                  >
+                    <AddIcon />
+                  </Plant>
                 ))}
               </ScrollView>
             )}
@@ -66,10 +73,17 @@ const Categories = ({ categories, selectPlant }: IProps) => {
 };
 const styles = StyleSheet.create({
   scroll: { flexDirection: 'row' },
+  collapse: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    alignItems: 'center',
+  },
   selectedPlants: {},
   category: {
     borderWidth: 1,
     borderColor: 'black',
+    margin: 1,
   },
   categoryName: {
     color: '#3d2f4b',

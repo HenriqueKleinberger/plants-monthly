@@ -15,6 +15,7 @@ import Categories from '../Categories';
 import Plant from '../Plants';
 import orderActions, { initialOrder } from '../../actions/order';
 import categoryActions from '../../actions/category';
+import DeleteIcon from '../Images/DeleteIcon';
 
 const monthNames = [
   'January',
@@ -127,7 +128,9 @@ export default function App() {
                 plant={p}
                 onPress={removeSelectedPlant}
                 accessibilityLabel={`Remove the ${p.name} from your next order`}
-              />
+              >
+                <DeleteIcon />
+              </Plant>
             );
           })}
         </View>

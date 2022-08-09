@@ -1,20 +1,23 @@
 import React from 'react';
-import { Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet, Image, View } from 'react-native';
 import { IPlant } from '../../types';
+import DeleteIcon from '../Images/DeleteIcon';
 
 interface IProps {
   plant: IPlant;
   onPress: (plant: IPlant) => void;
   accessibilityLabel: string;
+  children?: React.ReactNode;
 }
 
-const Plant = ({ plant, onPress, accessibilityLabel }: IProps) => {
+const Plant = ({ plant, onPress, accessibilityLabel, children }: IProps) => {
   return (
     <TouchableOpacity
       onPress={() => onPress(plant)}
       accessibilityLabel={accessibilityLabel}
       style={styles.touchable}
     >
+      <View style={styles.deleteImg}>{children}</View>
       <Image
         style={styles.plantImg}
         source={{
@@ -39,6 +42,11 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+  },
+  deleteImg: {
+    position: 'absolute',
+    zIndex: 2,
+    right: 0,
   },
   text: {
     flexWrap: 'wrap',

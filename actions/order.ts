@@ -19,6 +19,7 @@ export default {
     const response = await fetch(
       `${process.env.REACT_APP_BASE_URL}/order/user/1/last`
     );
+
     if (response.status === 200) {
       const order = (await response.json()) as IOrderResponse;
 
