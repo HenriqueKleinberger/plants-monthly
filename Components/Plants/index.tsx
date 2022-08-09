@@ -27,9 +27,13 @@ const Plant = ({ plant, onPress, accessibilityLabel }: IProps) => {
 };
 
 const styles = StyleSheet.create({
-  plant: { padding: 10 },
-  selectedPlants: {
-    flexDirection: 'row',
+  touchable: {
+    width: 65,
+    paddingVertical: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    position: 'relative',
   },
   plantImg: {
     width: 50,
@@ -41,13 +45,6 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     fontSize: 9,
     fontWeight: '600',
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
-  },
-  touchable: {
-    width: 65,
-    paddingVertical: 10,
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',

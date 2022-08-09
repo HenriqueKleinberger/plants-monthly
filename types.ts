@@ -2,6 +2,7 @@ export interface IPlant {
   id: string;
   name: string;
   imageId: string;
+  key?: string;
 }
 
 export interface ICategory {
@@ -17,7 +18,7 @@ export interface IOrder {
 }
 
 export interface IOrderResponse {
-  date: string;
+  month: number;
   id: number;
   plants: IPlant[];
 }
