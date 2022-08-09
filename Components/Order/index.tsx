@@ -134,7 +134,11 @@ export default function App() {
             );
           })}
         </View>
-        <Categories categories={categories} selectPlant={selectPlant} />
+        <Categories
+          categories={categories}
+          selectPlant={selectPlant}
+          nrPlantsSelected={order.plants.length}
+        />
         <TouchableOpacity
           onPress={isSaveChangesEnabled ? saveOrder : () => {}}
           accessibilityLabel={'Save order'}

@@ -14,9 +14,10 @@ import Plant from '../Plants';
 interface IProps {
   categories: ICategory[];
   selectPlant: (plant: IPlant) => void;
+  nrPlantsSelected: number;
 }
 
-const Categories = ({ categories, selectPlant }: IProps) => {
+const Categories = ({ categories, selectPlant, nrPlantsSelected }: IProps) => {
   const [activesCategories, setActivesCategories] = useState<ICategory[]>([]);
 
   const isCategoryActive = (category: ICategory) =>
@@ -60,7 +61,7 @@ const Categories = ({ categories, selectPlant }: IProps) => {
                     onPress={selectPlant}
                     accessibilityLabel={`Select the ${p.name} for your next order`}
                   >
-                    <AddIcon />
+                    {nrPlantsSelected !== 5 && <AddIcon />}
                   </Plant>
                 ))}
               </ScrollView>

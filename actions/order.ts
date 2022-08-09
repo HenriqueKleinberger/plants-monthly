@@ -7,6 +7,7 @@ export const initialOrder: IOrderResponse = {
   id: 0,
   month: new Date().getMonth() + 1,
   plants: [],
+  status: OPENED,
 };
 
 const getOrdersWithPlantKeys = (order: IOrderResponse) => ({
