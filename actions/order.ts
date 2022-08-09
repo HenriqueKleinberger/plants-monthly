@@ -1,6 +1,8 @@
 import { IOrderResponse } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
+import { OPENED } from '../constants/orderStatus';
+
 export const initialOrder: IOrderResponse = {
   id: 0,
   month: new Date().getMonth() + 1,
@@ -19,6 +21,9 @@ export default {
     );
     if (response.status === 200) {
       const order = (await response.json()) as IOrderResponse;
+
+      if (order.status !== OPENED)
+        return getOrdersWithPlantKeys({ ...order, id: 0 });
       return getOrdersWithPlantKeys(order);
     }
 
@@ -38,7 +43,7 @@ export default {
         }
       );
       const orderUpdated = (await response.json()) as IOrderResponse;
-      return getOrdersWithPlantKeys(order);
+      return getOrdersWithPlantKeys(orderUpdated);
     } else {
       const response = await fetch(
         `${process.env.REACT_APP_BASE_URL}/order/user/1`,
@@ -51,7 +56,7 @@ export default {
         }
       );
       const orderUpdated = (await response.json()) as IOrderResponse;
-      return getOrdersWithPlantKeys(order);
+      return getOrdersWithPlantKeys(orderUpdated);
     }
   },
 };

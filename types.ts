@@ -21,4 +21,5 @@ export interface IOrderResponse {
   month: number;
   id: number;
   plants: IPlant[];
+  status: string;
 }
