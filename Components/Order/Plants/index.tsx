@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, TouchableOpacity, StyleSheet, Image, View } from 'react-native';
-import { IPlant } from '../../types';
-import DeleteIcon from '../Images/DeleteIcon';
+import { IPlant } from '../../../types';
+import DeleteIcon from '../../Images/DeleteIcon';
 
 interface IProps {
   plant: IPlant;

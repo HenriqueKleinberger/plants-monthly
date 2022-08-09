@@ -6,18 +6,19 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import { ICategory, IPlant } from '../../types';
-import AddIcon from '../Images/AddIcon';
-import Arrow from '../Images/Arrow';
+import { v4 as uuidv4 } from 'uuid';
+import { ICategory, IPlant } from '../../../types';
+import AddIcon from '../../Images/AddIcon';
+import Arrow from '../../Images/Arrow';
 import Plant from '../Plants';
 
 interface IProps {
   categories: ICategory[];
-  selectPlant: (plant: IPlant) => void;
-  nrPlantsSelected: number;
+  changePlants: (plants: IPlant[]) => void;
+  plantsSelected: IPlant[];
 }
 
-const Categories = ({ categories, selectPlant, nrPlantsSelected }: IProps) => {
+const Categories = ({ categories, changePlants, plantsSelected }: IProps) => {
   const [activesCategories, setActivesCategories] = useState<ICategory[]>([]);
 
   const isCategoryActive = (category: ICategory) =>
@@ -34,6 +35,13 @@ const Categories = ({ categories, selectPlant, nrPlantsSelected }: IProps) => {
       );
     }
   };
+
+  const selectPlant = (plant: IPlant) => {
+    changePlants(plantsSelected.concat([{ ...plant, key: uuidv4() }]));
+  };
+
+  const canAddMorePlants = plantsSelected.length !== 5;
+
   return (
     <View style={styles.container}>
       {categories.map((c) => {
@@ -58,10 +66,10 @@ const Categories = ({ categories, selectPlant, nrPlantsSelected }: IProps) => {
                   <Plant
                     key={p.id}
                     plant={p}
-                    onPress={selectPlant}
+                    onPress={canAddMorePlants ? selectPlant : () => {}}
                     accessibilityLabel={`Select the ${p.name} for your next order`}
                   >
-                    {nrPlantsSelected !== 5 && <AddIcon />}
+                    {canAddMorePlants && <AddIcon />}
                   </Plant>
                 ))}
               </ScrollView>
